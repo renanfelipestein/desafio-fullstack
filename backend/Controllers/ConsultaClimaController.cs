@@ -61,13 +61,33 @@ public class ConsultaClimaController : ControllerBase
     public async Task<IActionResult> ConsultarPorLatLong([FromBody] ConsultaLatLogDTO dto)
     {
 
-        // Verificar se o usuário existe no banco de dados para salvar na consulta
-        // Verificar para passar o pais apos a cidade toledo esta buscando na espanha
+        var emailusuario = User.FindFirstValue(ClaimTypes.Email);
 
-        var resultado = await _climaService.ConsultarPorCoordenadasAsync(dto.Latitude, dto.Longitude);
+        if (emailusuario is null)
+            return Unauthorized("Token inválido.");
 
-        if (resultado is null)
-            return NotFound("Coordenadas não encontradas.");
+        var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == emailusuario);
+
+        if (usuario is null)
+            return Unauthorized("Usuário não encontrado.");
+
+
+        var climaCordenadas = await _climaService.ConsultarPorCoordenadasAsync(dto.Latitude, dto.Longitude);
+
+        if (climaCordenadas is null)
+            return NotFound("Cordenadas não encontrada.");
+
+        var resultado = new ConsultaClimaModel
+        {
+            Cidade = null,
+            Latitude = climaCordenadas.Latitude,
+            Longitude = climaCordenadas.Longitude,
+            Temperatura = climaCordenadas.Temperatura,
+            Usuario = usuario
+        };
+
+        _context.ConsultasClima.Add(resultado);
+        await _context.SaveChangesAsync(); 
 
         return Ok(resultado);
     }
