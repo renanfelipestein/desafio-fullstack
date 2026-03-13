@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 public class ClimaService
@@ -16,25 +17,32 @@ public class ClimaService
         _apiKey = Environment.GetEnvironmentVariable("API_KEY_OPENWEATHER");            
     }
 
-public async Task<ConsultaCidadeDTO> ConsultarPorCidadeAsync(string cidade)
+public async Task<ConsultaClimaDTO> ConsultarPorCidadeAsync(string cidade)
     {
         var url = $"{BaseUrl}?q={cidade}&appid={_apiKey}&units=metric&lang=pt_br";
         var dados = await ExecutarConsultaAsync(url);
 
-        return new ConsultaCidadeDTO
+        if (dados is null)
+            throw new Exception("Cidade não encontrada.");
+
+        return new ConsultaClimaDTO
         {
             Cidade      = dados.Cidade,
+            Latitude    = dados.Coord.Lat,
+            Longitude   = dados.Coord.Lon,
             Temperatura = dados.Main.Temp
         };
     }
 
-    public async Task<ConsultaLatLogDTO> ConsultarPorCoordenadasAsync(double lat, double lon)
+    public async Task<ConsultaClimaDTO> ConsultarPorCoordenadasAsync(double lat, double lon)
     {
+
         var url = $"{BaseUrl}?lat={lat}&lon={lon}&appid={_apiKey}&units=metric&lang=pt_br";
         var dados = await ExecutarConsultaAsync(url);
 
-        return new ConsultaLatLogDTO
+        return new ConsultaClimaDTO
         {
+            Cidade      = dados.Cidade,
             Latitude    = dados.Coord.Lat,
             Longitude   = dados.Coord.Lon,
             Temperatura = dados.Main.Temp
@@ -81,3 +89,4 @@ internal class MainResponse
     [JsonPropertyName("temp")]
     public decimal Temp { get; set; }
 }
+

@@ -36,24 +36,27 @@ public class ConsultaClimaController : ControllerBase
         if (usuario is null)
             return Unauthorized("Usuário não encontrado.");
 
-        var climaCidade = await _climaService.ConsultarPorCidadeAsync(dto.Cidade);
-        
-        if (climaCidade is null)
-            return NotFound("Cidade não encontrada.");
-
-        var resultado = new ConsultaClimaModel
+        try
         {
-            Cidade = climaCidade.Cidade,
-            Latitude = 0,
-            Longitude = 0,
-            Temperatura = climaCidade.Temperatura,
-            Usuario = usuario
-        };
+            var climaCidade = await _climaService.ConsultarPorCidadeAsync(dto.Cidade);    
 
-        _context.ConsultasClima.Add(resultado);
-        await _context.SaveChangesAsync(); 
+            var resultado = new ConsultaClimaModel
+            {
+                Cidade = climaCidade.Cidade,
+                Latitude = climaCidade.Latitude,
+                Longitude = climaCidade.Longitude,
+                Temperatura = climaCidade.Temperatura,
+                Usuario = usuario
+            };
 
-        return Ok(resultado);
+            _context.ConsultasClima.Add(resultado);
+            await _context.SaveChangesAsync(); 
+
+            return Ok(resultado);
+        }catch (Exception ex)    
+            {
+            return NotFound("Cidade não encontrada");
+        }
     }
 
     [Authorize]
@@ -71,15 +74,15 @@ public class ConsultaClimaController : ControllerBase
         if (usuario is null)
             return Unauthorized("Usuário não encontrado.");
 
+        if (dto.Latitude is null && dto.Longitude is null || dto.Latitude is null || dto.Longitude is null)
+            return BadRequest("Latitude e Longitude devem ser fornecidos.");
 
-        var climaCordenadas = await _climaService.ConsultarPorCoordenadasAsync(dto.Latitude, dto.Longitude);
-
-        if (climaCordenadas is null)
-            return NotFound("Cordenadas não encontrada.");
-
-        var resultado = new ConsultaClimaModel
+        try
         {
-            Cidade = null,
+            var climaCordenadas = await _climaService.ConsultarPorCoordenadasAsync(dto.Latitude.Value, dto.Longitude.Value);
+            var resultado = new ConsultaClimaModel
+        {
+            Cidade = climaCordenadas.Cidade,
             Latitude = climaCordenadas.Latitude,
             Longitude = climaCordenadas.Longitude,
             Temperatura = climaCordenadas.Temperatura,
@@ -90,7 +93,53 @@ public class ConsultaClimaController : ControllerBase
         await _context.SaveChangesAsync(); 
 
         return Ok(resultado);
+        
+        }catch (Exception ex)
+            {
+                return NotFound("Cordenadas não encontrada.");
+            } 
     }
 
+
+    [Authorize]
+    [HttpGet("consultaclima")]
+    public async Task<IActionResult> GetConsultasClima(ConsultaClimaDTO dto)
+    {
+        
+        var emailusuario = User.FindFirstValue(ClaimTypes.Email);
+        
+        if (emailusuario is null)
+            return Unauthorized("Token inválido.");
+
+        var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Email == emailusuario);
+        if (usuario is null)
+            return Unauthorized("Usuário não autorizado.");
+
+        var trintaDiasAtras = DateTime.UtcNow.AddDays(-30).Date;
+
+        var consultas = await _context.ConsultasClima
+            .Where(c => c.DataConsulta.Date > trintaDiasAtras)
+            .Where(c => c.Cidade.ToLower().Contains(dto.Cidade.ToLower()) ||
+                  (c.Latitude == dto.Latitude && c.Longitude == dto.Longitude))
+            .OrderBy(c => c.Cidade)
+            .ThenByDescending(c => c.DataConsulta)
+            .Select(c => new ConsultaClimaDTO
+            {
+                Cidade = c.Cidade,
+                Latitude = c.Latitude,
+                Longitude = c.Longitude,
+                Temperatura = c.Temperatura,
+                DataConsulta = c.DataConsulta
+            })
+            .ToListAsync();   
+
+        if (consultas == null || consultas.Count == 0)
+            return NotFound("Nenhuma consulta encontrada para os critérios fornecidos.");
+
+        return Ok(consultas);
+        }
+
+        
+    
 
 }

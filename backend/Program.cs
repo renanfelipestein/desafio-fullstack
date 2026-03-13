@@ -42,6 +42,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+   
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Clover API",
@@ -71,6 +72,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 builder.Services.AddHttpClient<ClimaService>();
+builder.Services.AddScoped<JwtService>();
 var app = builder.Build();
 
 app.UseSwagger();

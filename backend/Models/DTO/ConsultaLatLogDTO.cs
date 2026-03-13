@@ -1,6 +1,5 @@
 public class ConsultaLatLogDTO
 {
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    internal decimal Temperatura;
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
