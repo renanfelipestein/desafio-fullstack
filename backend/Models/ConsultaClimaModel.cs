@@ -10,4 +10,8 @@ public class ConsultaClimaModel
     public DateTime DataConsulta { get; set; }  = DateTime.UtcNow;
     public int UsuarioId { get; set; }
     public required UsuarioModel Usuario { get; set; } 
+
+    public ConsultaClimaModel()
+    {
+    }
 }

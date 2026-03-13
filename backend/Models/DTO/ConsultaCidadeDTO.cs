@@ -1,5 +1,7 @@
 public class ConsultaCidadeDTO
-{    
+{
+    internal decimal Temperatura;
+
     public string Cidade { get; set; }
-    public decimal Temperatura { get; set; }
+
 }

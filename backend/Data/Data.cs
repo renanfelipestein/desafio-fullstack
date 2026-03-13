@@ -13,6 +13,25 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<UsuarioModel>(entity =>
+    {
+        entity.HasKey(e => e.Id);
+
+        entity.Property(e => e.Nome)
+              .IsRequired()
+              .HasMaxLength(100);
+
+        entity.Property(e => e.Email)
+              .IsRequired()
+              .HasMaxLength(150);
+
+        entity.HasIndex(e => e.Email)
+              .IsUnique();
+
+        entity.Property(e => e.Senha)
+              .IsRequired();
+    });
+
         modelBuilder.Entity<ConsultaClimaModel>(entity =>
         {
             entity.HasKey(e => e.Id);
