@@ -4,11 +4,12 @@ import { ref } from "vue";
 const email = ref<string>("clover@aliare.co");
 const password = ref<string>("clover123");
 const erro = ref<string>("");
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
-async function login(email: string, password: string) {    
+async function login(email: string, password: string) {
   try {
     const { data } = await axios.post(
-      "http://localhost:5063/api/login",
+      `${API_BASE}/api/login`,
       {
         email: email,
         senha: password,

@@ -1,85 +1,176 @@
-# Desafio C# - Aliare
+## Tecnologias utilizadas
 
-Quer fazer parte da transformação do campo ~~escrevendo~~ codando o futuro do agronegócio?
+| Camada    | Tecnologia                              |
+|-----------|-----------------------------------------|
+| Backend   | .NET 8 (ASP.NET Core), Entity Framework Core 8 |
+| Banco     | PostgreSQL 16                           |
+| Frontend  | Vue 3 + TypeScript + Vite               |
+| UI        | Bootstrap 5, Chart.js                  |
+| Auth      | JWT Bearer Token                        |
+| Clima API | OpenWeatherMap                          |
+| Container | Docker + Docker Compose                 |
 
-Se deseja participar do nosso processo seletivo, siga as instruções deste desafio e execute os seguintes passos: 
+---
 
-* Nos mande sua resolução em um *pull request* neste repositório.
+## Pré-requisitos
 
-* Deixe a aplicação disponível publicamente em imagem docker em qualquer host. Na descrição do PR passe o link para que consigamos usar sua imagem.
+- [Docker](https://www.docker.com/) instalado
+- [Docker Compose](https://docs.docker.com/compose/) instalado
 
-* Por último, caso você ainda não esteja no processo seletivo, envie um email para [murilo.silva@aliare.co](mailto:murilo.silva@aliare.co) com seu CV anexado e o link da aplicação (se já estiver no processo seletivo, não precisa);
+---
 
-  
+## Como executar com Docker
 
-# Sobre a Aliare
+### 1. Clone o repositório
 
-A [Aliare](https://www.aliare.co/) é a maior empresa TECH AGRO do Brasil. Somos a plataforma de cooperação do agronegócio, conectando pessoas, ferramentas e empresas para transformar tempo em produtividade. Existimos para que todos os agentes da cadeia produtiva tenham informações certas, no tempo certo.
+```bash
+git clone <url-do-repositorio>
+cd desafio-fullstack
+```
 
-Nascemos do legado de três grandes empresas: Siagri, Datacoper e BTG, movidas pelo desejo de transformar o agronegócio do futuro.
+### 2. Suba os containers
 
-**Tudo que o agro precisa logo ali.**
+```bash
+docker-compose up --build
+```
 
+O comando acima irá:
+- Criar e iniciar o banco de dados PostgreSQL
+- Compilar e iniciar o backend .NET 8 (com migrations automáticas)
+- Compilar e servir o frontend Vue 3 via Nginx
 
-# O desafio
+### 3. Acesse a aplicação
 
-O objetivo deste desafio é avaliar sua capacidade de projetar e desenvolver uma aplicação full-stack utilizando .NET 8 (C#) no backend e Vue 3 (TypeScript) no frontend, consumindo uma API REST e persistindo dados em banco relacional.
+| Serviço         | URL                          |
+|-----------------|------------------------------|
+| Frontend        | http://localhost             |
+| Backend/Swagger | http://localhost:8080/swagger |
+| Health Check    | http://localhost:8080/health  |
 
-A aplicação deve permitir que o usuário consulte e registre informações de clima de diferentes localidades, com visualização de histórico.
+### 4. Login padrão
 
+```
+Email:  clover@aliare.co
+Senha:  clover123
+```
 
-## Requisitos
-- Registrar temperatura por cidade
+### Parar os containers
 
-  - Deve existir um endpoint que receba o nome da cidade.
-  - A aplicação deve consultar um provedor de clima (ou simulado/fake provider), persistir o resultado no banco de dados e retornar a temperatura atual.
+```bash
+docker-compose down
+```
 
-- Registrar temperatura por coordenadas
+### Parar e remover os dados do banco
 
-  - Deve existir um endpoint que receba a latitude e longitude.
-  - A aplicação deve consultar o provedor de clima, persistir o resultado no banco de dados e retornar a temperatura atual.
+```bash
+docker-compose down -v
+```
 
-- Consultar histórico de temperaturas
+---
 
-  - Deve existir um endpoint que receba o nome da cidade ou as coordenadas (lat/long).
-  - O sistema deve retornar o histórico de temperaturas registradas para a localidade nos últimos 30 dias, ordenadas do mais recente para o mais antigo.
+## Como executar localmente (sem Docker)
 
-- Interface Web
+### Pré-requisitos locais
 
-  - A aplicação deve possuir um frontend em Vue 3 + TypeScript que permita:
-    - Informar o nome da cidade para registrar a leitura de temperatura.
-    - Consultar e visualizar o histórico de temperaturas em lista e em gráfico.
-## Requisitos não funcionais
+- .NET 8 SDK
+- Node.js 20+
+- PostgreSQL rodando em `localhost:5432`
 
-- A aplicação deve ser desenvolvida em .NET 8 (C#) no backend e Vue 3 + TypeScript no frontend.
-- O banco de dados deve ser relacional (PostgreSQL).
-- Deve haver documentação da API via Swagger.
-- O sistema deve expor um health check em /health.
-- O código deve conter testes automatizados (unitários e pelo menos um de integração).
-- A solução deve ser conteinerizada com Docker, com docker-compose.yml para orquestrar API, banco e frontend.
-- O repositório deve conter instruções claras no README.md para execução da aplicação.
+### Backend
 
-- Será considerado ponto extra:
- - Autenticação JWT para endpoints de escrita.
- - Feature flag para troca de provedor de clima.
- - Aplicativo .NET MAUI simples consumindo a API.
- - Pipeline de CI/CD configurado (GitHub Actions).
-  
-Obs.: Não se preocupe com os pontos extras, faça-os se você se sentir confortável e se tiver tempo, consideraremos seu código **desclassificado se seu projeto não estiver funcionando** ou se não tiver os requisitos básicos implementados e funcionais.
+```bash
+cd backend
+dotnet restore
+dotnet run
+# Disponível em http://localhost:5063
+```
 
-## Dicas
+### Frontend
 
-- Você pode usar a API do *[OpenWeatherMaps](https://openweathermap.org)* para buscar dados de temperatura;
-- Certifique-se que sua imagem está funcionando perfeitamente com um simples: `docker run -d --name desafio-csharp -port 5000:5000 [seu_docker_hub]/desafio-csharp`, isso te dará pontos extras;
+```bash
+cd frontend
+npm install
+npm run dev
+# Disponível em http://localhost:5173
+```
 
-## Recomendações
+> O arquivo `frontend/.env` já está configurado com `VITE_API_URL=http://localhost:5063` para desenvolvimento local.
 
-* Utilize boas práticas de codificação, isso será avaliado;
-* Código limpo, organizado e documentado (quando necessário);
-* Use e abuse de:
-  * SOLID;
-  * Criatividade;
-  * Performance;
-  * Manutenabilidade;
-  * Testes Unitários
-  * ... pois avaliaremos tudo isso!
+---
+
+## Estrutura do projeto
+
+```
+desafio-fullstack/
+├── backend/
+│   ├── Controllers/        # Endpoints da API
+│   ├── Services/           # ClimaService (OpenWeatherMap), JwtService
+│   ├── Models/             # Entidades e DTOs
+│   ├── Data/               # AppDbContext (Entity Framework)
+│   ├── Migrations/         # Migrations do banco
+│   ├── Dockerfile
+│   └── .dockerignore
+├── frontend/
+│   ├── src/
+│   │   └── components/     # Login, ConsultaCidade, ConsultaCoordenadas
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── .env
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+## Endpoints da API
+
+### Autenticação
+
+| Método | Endpoint     | Descrição          |
+|--------|--------------|--------------------|
+| POST   | /api/login   | Retorna JWT token  |
+
+**Body:**
+```json
+{ "email": "clover@aliare.co", "senha": "clover123" }
+```
+
+### Consultas de Clima *(requer Bearer token)*
+
+| Método | Endpoint                            | Descrição                          |
+|--------|-------------------------------------|------------------------------------|
+| POST   | /api/consulta-clima/cidade          | Consulta temperatura por cidade    |
+| POST   | /api/consulta-clima/latlong         | Consulta temperatura por lat/long  |
+| GET    | /api/consulta-clima/consultaclima   | Histórico dos últimos 30 dias      |
+
+### Utilitários
+
+| Método | Endpoint  | Descrição                        |
+|--------|-----------|----------------------------------|
+| GET    | /health   | Health check do sistema          |
+| GET    | /swagger  | Documentação interativa da API   |
+
+---
+
+## Arquitetura Docker
+
+```
+Browser
+  │
+  ▼
+[Frontend - Nginx :80]
+  │  serve arquivos estáticos Vue
+  │  proxy /api/* → backend:8080
+  │
+  ▼
+[Backend - .NET 8 :8080]
+  │  JWT auth
+  │  OpenWeatherMap API
+  │  EF Core migrations automáticas
+  │
+  ▼
+[Database - PostgreSQL :5432]
+  │  volume persistente postgres_data
+```
+
+O Nginx faz proxy transparente das chamadas `/api` do browser para o container do backend, sem expor o backend diretamente ao exterior (exceto a porta 8080 para acesso ao Swagger).

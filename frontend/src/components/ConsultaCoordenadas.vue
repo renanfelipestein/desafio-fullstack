@@ -21,6 +21,7 @@ const longitude = ref<number | null>(null);
 const resultado = ref<string | null>(null);
 const erro = ref<string | null>(null);
 const historico: Ref<any[]> = ref([]);
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 const limparModal = () => {
     resultado.value = null;
@@ -36,7 +37,7 @@ const consultaCoordenada = async (latitude: number | null, longitude: number | n
 
     try {
         const { data } = await axios.post(
-            "http://localhost:5063/api/consulta-clima/latlong",
+            `${API_BASE}/api/consulta-clima/latlong`,
             {
                 latitude: latitude,
                 longitude: longitude
@@ -68,7 +69,7 @@ const consultaCoordenada = async (latitude: number | null, longitude: number | n
 const consultaClimaHistorico = async (cidadeNome: string, lat: number, lon: number) => {
   try {
     const { data } = await axios.get(
-      "http://localhost:5063/api/consulta-clima/consultaclima",
+      `${API_BASE}/api/consulta-clima/consultaclima`,
       {
         params: { cidade: cidadeNome, lat: lat, lon: lon },
         headers: {
