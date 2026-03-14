@@ -103,7 +103,9 @@ public class ConsultaClimaController : ControllerBase
 
     [Authorize]
     [HttpGet("consultaclima")]
-    public async Task<IActionResult> GetConsultasClima(ConsultaClimaDTO dto)
+    public async Task<IActionResult> GetConsultasClima([FromQuery] string? cidade,
+                                                        [FromQuery] double? lat,
+                                                        [FromQuery] double? lon)
     {
         
         var emailusuario = User.FindFirstValue(ClaimTypes.Email);
@@ -119,8 +121,8 @@ public class ConsultaClimaController : ControllerBase
 
         var consultas = await _context.ConsultasClima
             .Where(c => c.DataConsulta.Date > trintaDiasAtras)
-            .Where(c => c.Cidade.ToLower().Contains(dto.Cidade.ToLower()) ||
-                  (c.Latitude == dto.Latitude && c.Longitude == dto.Longitude))
+            .Where(c => c.Cidade.ToLower().Contains(cidade.ToLower()) ||
+                  (c.Latitude == lat && c.Longitude == lon))
             .OrderBy(c => c.Cidade)
             .ThenByDescending(c => c.DataConsulta)
             .Select(c => new ConsultaClimaDTO

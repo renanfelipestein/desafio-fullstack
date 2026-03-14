@@ -5,6 +5,9 @@ using DotNetEnv;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.OpenApi.Models;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
 
 Env.Load();
 
@@ -71,9 +74,32 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
+
 builder.Services.AddHttpClient<ClimaService>();
 builder.Services.AddScoped<JwtService>();
+
+
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+app.UseCors("AllowAll");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
