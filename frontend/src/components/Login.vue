@@ -4,7 +4,7 @@ import { ref } from "vue";
 const email = ref<string>("clover@aliare.co");
 const password = ref<string>("clover123");
 const erro = ref<string>("");
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 async function login(email: string, password: string) {
   try {
@@ -20,7 +20,7 @@ async function login(email: string, password: string) {
     erro.value = error.response?.data?.message;
     setTimeout(() => {
       erro.value = "";
-    }, 1000);
+    }, 2500);
   }
 
 }
@@ -53,7 +53,7 @@ async function login(email: string, password: string) {
             {{erro}}
           </div>
           <div class="col-auto text-center justify-content-center align-items-center d-flex">
-            <button type="submit" class="btn btn-primary mb-3" @click="login(email, password)" >   
+            <button class="btn btn-primary mb-3" @click.prevent="login(email, password)" >   
               Entrar
             </button>
           </div>

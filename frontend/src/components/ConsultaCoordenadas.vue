@@ -62,7 +62,7 @@ const consultaCoordenada = async (latitude: number | null, longitude: number | n
             "Ocorreu um erro ao consultar a temperatura.";
         setTimeout(() => {
             erro.value = "";
-        }, 2000);
+        }, 5000);
     }
 };
 

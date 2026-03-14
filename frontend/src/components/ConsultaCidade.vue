@@ -55,7 +55,7 @@ const consultaCidade = async (cidade: string) => {
             "Ocorreu um erro ao consultar a temperatura.";
         setTimeout(() => {
             erro.value = "";
-        }, 2000);
+        }, 5000);
     }
 };
 
