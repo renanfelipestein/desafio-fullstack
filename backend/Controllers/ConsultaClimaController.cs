@@ -23,9 +23,6 @@ public class ConsultaClimaController : ControllerBase
     public async Task<IActionResult> ConsultarPorCidade([FromBody] ConsultaCidadeDTO dto)
     {
 
-        // Verificar se o usuário existe no banco de dados para salvar na consulta
-        // Verificar para passar o pais apos a cidade toledo esta buscando na espanha
-
         var emailusuario = User.FindFirstValue(ClaimTypes.Email);
 
         if (emailusuario is null)
@@ -36,9 +33,10 @@ public class ConsultaClimaController : ControllerBase
         if (usuario is null)
             return Unauthorized("Usuário não encontrado.");
 
+       
         try
         {
-            var climaCidade = await _climaService.ConsultarPorCidadeAsync(dto.Cidade);    
+             var climaCidade = await _climaService.ConsultarPorCidadeAsync(dto.Cidade);  
 
             var resultado = new ConsultaClimaModel
             {
@@ -54,7 +52,7 @@ public class ConsultaClimaController : ControllerBase
 
             return Ok(resultado);
         }catch (Exception ex)    
-            {
+            {                
             return NotFound("Cidade não encontrada");
         }
     }
@@ -119,21 +117,32 @@ public class ConsultaClimaController : ControllerBase
 
         var trintaDiasAtras = DateTime.UtcNow.AddDays(-30).Date;
 
-        var consultas = await _context.ConsultasClima
-            .Where(c => c.DataConsulta.Date > trintaDiasAtras)
-            .Where(c => c.Cidade.ToLower().Contains(cidade.ToLower()) ||
-                  (c.Latitude == lat && c.Longitude == lon))
+        var query = _context.ConsultasClima
+            .Where(c => c.DataConsulta.Date > trintaDiasAtras);
+
+        if (!string.IsNullOrEmpty(cidade))
+        {
+            query = query.Where(c => c.Cidade.ToLower().Contains(cidade.ToLower()));
+        }
+        else if (lat != null && lon != null)
+        {
+            query = query.Where(c => c.Latitude == lat && c.Longitude == lon);
+        }
+
+        var consultas = await query
             .OrderBy(c => c.Cidade)
             .ThenByDescending(c => c.DataConsulta)
             .Select(c => new ConsultaClimaDTO
             {
-                Cidade = c.Cidade,
+                Cidade = string.IsNullOrEmpty(c.Cidade) 
+                ? "Coordenada sem Cidade" /* para coordenadas sem cidade*/
+                : c.Cidade,
                 Latitude = c.Latitude,
                 Longitude = c.Longitude,
                 Temperatura = c.Temperatura,
                 DataConsulta = c.DataConsulta
             })
-            .ToListAsync();   
+            .ToListAsync(); 
 
         if (consultas == null || consultas.Count == 0)
             return NotFound("Nenhuma consulta encontrada para os critérios fornecidos.");

@@ -22,7 +22,7 @@ public async Task<ConsultaClimaDTO> ConsultarPorCidadeAsync(string cidade)
         var url = $"{BaseUrl}?q={cidade}&appid={_apiKey}&units=metric&lang=pt_br";
         var dados = await ExecutarConsultaAsync(url);
 
-        if (dados is null)
+        if (dados.Cidade is null)
             throw new Exception("Cidade não encontrada.");
 
         return new ConsultaClimaDTO

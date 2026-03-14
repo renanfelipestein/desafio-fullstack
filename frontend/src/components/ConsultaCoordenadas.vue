@@ -139,7 +139,7 @@ watch(historico, (novoHistorico) => {
         <!-- Modal -->
         <div class="modal fade" id="exampleModal-Coordenada" tabindex="-1" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalLabel">
@@ -171,7 +171,8 @@ watch(historico, (novoHistorico) => {
                             <th scope="col-5">Cidade</th>
                             <th scope="col-1">Temperatura</th>
                             <th scope="col-1">Data</th>  
-                            <th scope="col-4">Lat/Log</th>   
+                            <th scope="col-2">Latitude</th>   
+                            <th scope="col=2">Longitude</th>
                             </tr>
                         </thead>
                         <tbody v-for="(item, index) in historico" :key="index">
@@ -179,7 +180,8 @@ watch(historico, (novoHistorico) => {
                             <th>{{ item.cidade }}</th>
                             <td>{{ item.temperatura }} °C</td>
                             <td>{{ new Date(item.dataConsulta).toLocaleString() }}</td>  
-                            <th>{{ item.latitude }} | {{ item.longitude }}</th>
+                            <th>{{ item.latitude }}</th>
+                            <th>{{ item.longitude }}</th>
                             </tr>       
                         </tbody>
                         </table>
